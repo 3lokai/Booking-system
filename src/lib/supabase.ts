@@ -7,11 +7,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Types for our database
 export type Slot = {
-  id: string;
-  time_slot: string;
-  is_booked: boolean;
-  booker_name: string | null;
-  booker_email: string | null;
-  account_name: string | null;
-  created_at: string;
-};
+    id: string;
+    time_slot: string;
+    is_booked: boolean;
+    booker_name: string | null;
+    booker_email: string | null;
+    account_name: string | null;
+    created_at: string;
+  };
