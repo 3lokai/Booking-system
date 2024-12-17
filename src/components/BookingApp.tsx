@@ -358,7 +358,7 @@ if (existingBookings && existingBookings.length > 0) {
               <div className="mt-3 text-sm">
                 <p className="font-medium mb-1">Please prepare for the session:</p>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li>Have your account documentation uploaded in your dedicated Teams channel well in advance</li>
+                  <li>Have your account documentation uploaded in your dedicated Teams channel within the stipulated timeline</li>
                   <li>Feel free to provide any relevent addendum files for the panel to review</li>
                   <li>Reach out to{' '}
                       <a href="mailto:amy.cole@publicissapient.com" className="text-blue-600 hover:underline">Amy Cole</a> /{' '}
