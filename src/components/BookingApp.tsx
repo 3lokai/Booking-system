@@ -1,6 +1,16 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { supabase, type Slot } from '@/lib/supabase';
+import { supabase, type Slot } from '../lib/supabase';
+
+const ContactLinks = () => (
+  <>
+    <a href="mailto:amy.cole@publicissapient.com" className="text-red-700 hover:underline">Amy Cole</a>
+    {' '}/{' '}
+    <a href="mailto:abhishek.gt@publicissapient.com" className="text-red-700 hover:underline">Abhishek GT</a>
+    {' '}/{' '}
+    <a href="mailto:vatsal.gupta@publicissapient.com" className="text-red-700 hover:underline">Vatsal Gupta</a>
+  </>
+);
 
 const BookingApp = () => {
   const generateSlots = (): Slot[] => {
@@ -135,6 +145,28 @@ const BookingApp = () => {
     }
 
     try {
+      const { data: existingBookings, error: searchError } = await supabase
+  .from('slots')
+  .select('*')
+  .or(`booker_email.eq."${formData.email}",account_name.eq."${formData.accountName}",booker_name.eq."${formData.name}"`)
+  .eq('is_booked', true);
+
+if (searchError) throw searchError;
+
+if (existingBookings && existingBookings.length > 0) {
+  const existingBooking = existingBookings[0];
+  let errorMessage = '';
+  
+  if (existingBooking.booker_email === formData.email) {
+    setError(`email-${formData.email}`);
+  } else if (existingBooking.account_name === formData.accountName) {
+    setError(`account-${formData.accountName}`);
+  } else if (existingBooking.booker_name === formData.name) {
+    setError(`name-${formData.name}`);
+  }
+  setSubmitting(false);
+  return;
+}
       const { error } = await supabase
         .from('slots')
         .update({
@@ -166,6 +198,8 @@ const BookingApp = () => {
     } catch (err) {
       console.error('Error during booking:', err); // Actually use the err parameter
       setError('Failed to book slot. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -295,9 +329,26 @@ const BookingApp = () => {
 
           {/* Notifications */}
           <div className="mt-6">
-            {error && (
+          {error && (
               <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">
-                {error}
+                {error.startsWith('email-') ? (
+                  <p>
+                    You ({error.split('-')[1]}) have already booked a slot, please reach out to{' '}
+                    <ContactLinks /> for any rescheduling.
+                  </p>
+                ) : error.startsWith('account-') ? (
+                  <p>
+                    This account ({error.split('-')[1]}) already has a scheduled review, please reach out to{' '}
+                    <ContactLinks /> for any rescheduling.
+                  </p>
+                ) : error.startsWith('name-') ? (
+                  <p>
+                    You ({error.split('-')[1]}) have already booked a slot, please reach out to{' '}
+                    <ContactLinks /> for any rescheduling.
+                  </p>
+                ) : (
+                  error
+                )}
               </div>
             )}
             {success && (
@@ -325,14 +376,14 @@ const BookingApp = () => {
           <button 
             type="submit" 
             onClick={handleSubmit}
-            disabled={submitting}
+            disabled={submitting || success !== ''}
             className={`w-full mt-4 px-4 py-2 rounded-md text-white font-medium
-              ${submitting 
-                ? 'bg-blue-400 cursor-not-allowed' 
+              ${(submitting || success !== '') 
+                ? 'bg-gray-400 cursor-not-allowed' 
                 : 'bg-blue-600 hover:bg-blue-700'
               }`}
           >
-            {submitting ? 'Booking...' : 'Book Time Slot'}
+            {submitting ? 'Booking...' : success ? 'Booked Successfully' : 'Book Time Slot'}
           </button>
         </div>
       </div>
