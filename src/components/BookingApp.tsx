@@ -97,18 +97,6 @@ const BookingApp = () => {
     fetchSlots();
   }, []);
 
-  const formatTimeSlot = (timeSlot: string) => {
-    const date = new Date(timeSlot);
-    return new Intl.DateTimeFormat('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    }).format(date);
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -176,9 +164,8 @@ const BookingApp = () => {
       if (updatedSlots) setSlots(updatedSlots);
 
     } catch (err) {
+      console.error('Error during booking:', err); // Actually use the err parameter
       setError('Failed to book slot. Please try again.');
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -210,7 +197,7 @@ const BookingApp = () => {
         <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="text-center border-b pb-6">
   <h1 className="text-2xl font-semibold">Schedule Your Account Plan Review</h1>
-  <p className="text-gray-600 mt-2">Join us for a one-hour session to review and align on your account's strategic goals and progress.</p>
+  <p className="text-gray-600 mt-2">Join us for a one-hour session to review and align on your account&apos;s strategic goals and progress.</p>
 
 </div>
           
@@ -230,7 +217,7 @@ const BookingApp = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">CP's Email (@publicissapient.com)</label>
+                <label className="block text-sm font-medium mb-1">CP&apos;s Email (@publicissapient.com)</label>
                 <input
                   type="email"
                   name="email"
