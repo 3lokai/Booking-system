@@ -146,27 +146,26 @@ const BookingApp = () => {
 
     try {
       const { data: existingBookings, error: searchError } = await supabase
-  .from('slots')
-  .select('*')
-  .or(`booker_email.eq."${formData.email}",account_name.eq."${formData.accountName}",booker_name.eq."${formData.name}"`)
-  .eq('is_booked', true);
-
-if (searchError) throw searchError;
-
-if (existingBookings && existingBookings.length > 0) {
-  const existingBooking = existingBookings[0];
-  let errorMessage = '';
+      .from('slots')
+      .select('*')
+      .eq('account_name', formData.accountName)
+      .eq('is_booked', true);
   
-  if (existingBooking.booker_email === formData.email) {
-    setError(`email-${formData.email}`);
-  } else if (existingBooking.account_name === formData.accountName) {
-    setError(`account-${formData.accountName}`);
-  } else if (existingBooking.booker_name === formData.name) {
-    setError(`name-${formData.name}`);
-  }
-  setSubmitting(false);
-  return;
-}
+    if (searchError) throw searchError;
+  
+    if (existingBookings && existingBookings.length > 0) {
+      const existingBooking = existingBookings[0];
+      const bookingDate = new Date(existingBooking.time_slot).toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+      setError(`account-${formData.accountName}-${bookingDate}`);
+      setSubmitting(false);
+      return;
+    }
       const { error } = await supabase
         .from('slots')
         .update({
@@ -330,26 +329,16 @@ if (existingBookings && existingBookings.length > 0) {
           {/* Notifications */}
           <div className="mt-6">
           {error && (
-              <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">
-                {error.startsWith('email-') ? (
-                  <p>
-                    You ({error.split('-')[1]}) have already booked a slot, please reach out to{' '}
-                    <ContactLinks /> for any rescheduling.
-                  </p>
-                ) : error.startsWith('account-') ? (
-                  <p>
-                    This account ({error.split('-')[1]}) already has a scheduled review, please reach out to{' '}
-                    <ContactLinks /> for any rescheduling.
-                  </p>
-                ) : error.startsWith('name-') ? (
-                  <p>
-                    You ({error.split('-')[1]}) have already booked a slot, please reach out to{' '}
-                    <ContactLinks /> for any rescheduling.
-                  </p>
-                ) : (
-                  error
-                )}
-              </div>
+               <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">
+               {error.startsWith('account-') ? (
+                 <p>
+                   This account ({error.split('-')[1]}) already has a scheduled review on {error.split('-')[2]}, please reach out to{' '}
+                   <ContactLinks /> for any rescheduling.
+                 </p>
+               ) : (
+                 error
+               )}
+             </div>
             )}
             {success && (
               <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-md mb-4">
